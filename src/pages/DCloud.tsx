@@ -2,7 +2,7 @@
 
 import { useWallet } from "@solana/wallet-adapter-react";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
-import { useEffect, useState } from "react";
+import { useEffect, useState, lazy, Suspense } from "react";
 import { initializeStorage, storageAccountExists } from "../lib/anchorClient";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -15,6 +15,20 @@ import {
   FileText,
   Sparkles,
 } from "lucide-react";
+
+const FileManager = lazy(() => import("../components/FileManager"));
+
+const FileManagerWrapper = () => (
+  <Suspense
+    fallback={
+      <div className="flex items-center justify-center py-12">
+        <Loader2 className="h-8 w-8 text-primary animate-spin" />
+      </div>
+    }
+  >
+    <FileManager />
+  </Suspense>
+);
 
 const GlassCard = ({ children, className = "" }: { children: React.ReactNode; className?: string }) => (
   <motion.div
@@ -273,25 +287,10 @@ export default function DCloudPage() {
                         initial={{ y: 10, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
                         transition={{ delay: 0.2 }}
-                        className="p-6 bg-gradient-to-br from-primary/5 to-accent/5 rounded-2xl border border-dashed border-primary/30 backdrop-blur-sm"
+                        className="w-full"
                       >
-                        <div className="flex items-start gap-3 mb-4">
-                          <FileText className="h-5 w-5 text-accent flex-shrink-0 mt-1" />
-                          <div className="text-left">
-                            <h3 className="text-lg font-bold text-foreground mb-1">
-                              File Manager Access
-                            </h3>
-                            <p className="text-muted-foreground text-sm">
-                              Upload, manage, and share your files securely
-                            </p>
-                          </div>
-                        </div>
-                        <button
-                          disabled
-                          className="w-full bg-muted text-muted-foreground font-semibold py-3 px-8 rounded-full cursor-not-allowed opacity-50 transition-all"
-                        >
-                          Coming Soon
-                        </button>
+                        {/* Dynamic import to avoid SSR issues */}
+                        <FileManagerWrapper />
                       </motion.div>
                     </motion.div>
                   ) : (
